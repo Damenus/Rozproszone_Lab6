@@ -1,0 +1,148 @@
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#include<iostream>
+#include<WinSock2.h>
+
+#pragma comment(lib, "Ws2_32.lib")
+using namespace std;
+
+struct dane
+{
+	SOCKET si;
+	DWORD id;
+
+}dane_odb, dane_wysyl;
+HANDLE wysyl_th, odbier_th;
+DWORD id_wysyl, id_odbier;
+
+int PORT;
+
+char * adres = { "127.0.0.1" };
+
+DWORD WINAPI odbieranie(void *argumenty);
+DWORD WINAPI wysylanie(void *argumenty);
+DWORD kodWyjscia_wysyl = -1;
+DWORD kodWyjscia_odb = -1;
+//KLIENT
+int main()
+{
+	//ladowanie biblioteki
+	WSADATA wsas;
+	int result;
+	WORD wersja;
+	wersja = MAKEWORD(2, 1);
+	result = WSAStartup(wersja, &wsas);
+	//jezeli sie uda
+	if (result == 0)
+	{
+		SOCKET s;
+		s = socket(AF_INET, SOCK_STREAM, 0);
+		printf("Podaj numer portu:\t");
+		cin >> PORT;
+
+		struct sockaddr_in sa;
+		memset((void *)(&sa), 0, sizeof(sa));
+		sa.sin_family = AF_INET;
+		sa.sin_port = htons(PORT);
+		sa.sin_addr.s_addr = inet_addr(adres);
+
+		result = connect(s, (struct sockaddr FAR *) &sa, sizeof(sa));
+
+		//wczytywanie portu
+		if (result == SOCKET_ERROR)
+		{
+			
+			printf("\nBlad polaczenia! Zly numer portu badz serwer nieaktywny.");
+			Sleep(2500);			
+			return 0;
+		}
+		else if (result == 0)
+		{
+
+			//inicjalizacja watkow odbierania i wysylania
+			dane_odb.si = s;
+			dane_wysyl.si = s;
+			odbier_th = CreateThread(NULL, 0, odbieranie, (void*)&dane_odb, 0, &(dane_odb.id));
+			wysyl_th = CreateThread(NULL, 0, wysylanie, (void*)&dane_wysyl, 0, &(dane_wysyl.id));
+
+
+			while (true)
+			{
+				GetExitCodeThread(odbier_th, &kodWyjscia_odb);
+				GetExitCodeThread(wysyl_th, &kodWyjscia_wysyl);
+
+				if (kodWyjscia_wysyl == 0)
+				{
+					WSACleanup();
+					return 0;
+				}
+			}
+			
+				
+			
+
+		}
+
+	}
+
+	getchar();
+	return 0;
+}
+
+
+DWORD WINAPI odbieranie(void *argumenty)
+{
+
+	dane *th_dane = (dane*)argumenty;
+	char buf[80];
+	int result;
+
+	do
+	{
+		result = recv(th_dane->si, buf, 80, 0);
+		if (result == SOCKET_ERROR)
+		{
+			return 0;
+		}
+		printf("%s", buf);
+	
+	} while (result > 0);
+	
+		
+
+
+	return 0;
+
+}
+
+DWORD WINAPI wysylanie(void *argumenty)
+{
+	dane *th_dane = (dane*)argumenty;
+	int dlug;
+	int result;
+	char buf[80];
+	while (true)
+	{
+		
+		fgets(buf, 80, stdin);
+		dlug = strlen(buf);
+		buf[dlug - 1] = '\0';
+		result = send(th_dane->si, buf, dlug, 0);
+		if (strcmp(buf, ":wyjdz") == 0)
+		{
+			closesocket(th_dane->si);
+			return 0;
+		}
+		//zakonczenie, jezeli serwer nie odpowiada
+		if (result == SOCKET_ERROR)
+		{
+			printf("Serwer prawdopodobnie zostal odlaczony.Zamykanie natapi za 3 sekundy.\n");
+			Sleep(3000);
+			closesocket(th_dane->si);
+			return 0;
+		}
+			
+	}
+
+
+}

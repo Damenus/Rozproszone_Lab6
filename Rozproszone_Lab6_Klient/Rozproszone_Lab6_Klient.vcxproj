@@ -78,6 +78,9 @@
   <ItemGroup>
     <ClCompile Include="Klient.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="klientFranka.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

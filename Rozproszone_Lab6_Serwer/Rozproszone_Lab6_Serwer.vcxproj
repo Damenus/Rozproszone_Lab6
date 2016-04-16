@@ -78,6 +78,10 @@
   <ItemGroup>
     <ClCompile Include="Serwer.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="lab4.txt" />
+    <Text Include="serverFranka.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
