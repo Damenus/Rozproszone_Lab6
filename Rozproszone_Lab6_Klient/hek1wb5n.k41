@@ -41,14 +41,14 @@ int main()
 	}	else  if (result == 0) {
 		dane_watku.s = s;
 		wys = CreateThread(NULL, 0, wysylanie, (void*)&dane_watku, 0, &id);
-		odb = CreateThread(NULL, 0, odbieranie, (void*)&dane_watku, 0, &id);
+		//odb = CreateThread(NULL, 0, odbieranie, (void*)&dane_watku, 0, &id);
 	}
 
 	while (true) {
 		for (;;);
 	}
 
-	
+
 	closesocket(s);
 	WSACleanup();
 
@@ -84,7 +84,7 @@ DWORD WINAPI odbieranie(void *arg) {
 			WSACleanup();
 			return 0;
 		}
-		printf("%s\n", buf);
+		printf("\n%s", buf);
 	}
 	return 0;
 }

@@ -9,7 +9,7 @@ using namespace std;
 
 struct dane{
 	SOCKET si;
-	char nick[80];
+	char nick[20];
 
 }dane_dla_klienta[5];
 
@@ -48,7 +48,7 @@ int main()
 	for (;;)
 	{
 		lenc = sizeof(sc);
-		si = accept(s, (struct sockaddr FAR *) &sc, &lenc);		if (si != INVALID_SOCKET) {			dane_dla_klienta[i].si = si;			watki[i] = CreateThread(NULL, 0, klient, (void*)&dane_dla_klienta[i], 0, &id);
+		si = accept(s, (struct sockaddr FAR *) &sc, &lenc);		if (si != INVALID_SOCKET) {			dane_dla_klienta[i].si = si;			watki[i] = CreateThread(NULL, 0, klient, (void*)&dane_dla_klienta[i], 0, &id);
 			i++;		}	}
 
 	
@@ -56,23 +56,18 @@ int main()
 	return 0;
 }
 
+void wyslij_do_wszystkich() {
+	for (int j = 0; j < i; j++) {
+	//	dlug = strlen(buf); buf[dlug - 1] = '\0';
+	//	send(dane->s, buf, dlug, 0);
+	}
+}
 
 DWORD WINAPI klient(void *arg) {
 	
 	dane *dane = (struct dane*)arg;
 	int dlug;
 	char buf[80];
-	char buf_nick[80];
-	char buff_with_nick[160]; 
-	//podnieranie nicku
-	char nick[] = "Podaj nick: \0";
-	dlug = strlen(nick) + 1;
-	buf[dlug] = '\0';
-	send(dane->si, nick, dlug, 0);
-
-	recv(dane->si, buf_nick, 80, 0);
-	strcpy(dane->nick, buf_nick);
-
 	while (recv(dane->si, buf, 80, 0) > 0)
 	{
 		if (strcmp(buf, "KONIEC") == 0)
@@ -81,18 +76,12 @@ DWORD WINAPI klient(void *arg) {
 			WSACleanup();
 			return 0;
 		}
-		//printf("\n%s: %s", dane->nick,buf);
+		printf("\n%s", buf);
 
-		strcpy(buff_with_nick, buf_nick); // tablica charów z samym nickiem
-		strcat(buff_with_nick, ": ");		//dodoawanie do tablicy dodatkowego tekstu
-		strcat(buff_with_nick, buf);
-		printf("\n%s", buff_with_nick);
-
-		dlug = strlen(buff_with_nick) + 1;
-		buff_with_nick[dlug] = '\0';
 		for (int j = 0; j < i; j++) {
-			if (dane_dla_klienta[j].si != dane->si)	//inny ni¿ wysy³aj¹cy
-				send(dane_dla_klienta[j].si, buff_with_nick, dlug, 0);  //wys³anie do klientów wiadomoœci
+			dlug = strlen(buf); 
+			buf[dlug - 1] = '\0';
+			send(dane->si, buf, dlug, 0);
 		}
 
 

@@ -38,17 +38,26 @@ int main()
 	{
 		printf("\nB³¹d po³¹czenia!");
 		return 0;
-	}	else  if (result == 0) {
-		dane_watku.s = s;
-		wys = CreateThread(NULL, 0, wysylanie, (void*)&dane_watku, 0, &id);
-		odb = CreateThread(NULL, 0, odbieranie, (void*)&dane_watku, 0, &id);
-	}
+	}	//else  if (result == 0) {
+	//	dane_watku.s = s;
+	//	wys = CreateThread(NULL, 0, wysylanie, (void*)&dane_watku, 0, &id);
+		//odb = CreateThread(NULL, 0, odbieranie, (void*)&dane_watku, 0, &id);
+//	}
 
-	while (true) {
-		for (;;);
-	}
+//	while (true) {
+//		for (;;);
+//	}
 
-	
+	int dlug;
+	char buf[80];
+	for (;;)
+	{
+		fgets(buf, 80, stdin);
+		dlug = strlen(buf); buf[dlug - 1] = '\0';
+		send(s, buf, dlug, 0);
+		if (strcmp(buf, "KONIEC") == 0)
+			break;
+	}
 	closesocket(s);
 	WSACleanup();
 
@@ -84,7 +93,7 @@ DWORD WINAPI odbieranie(void *arg) {
 			WSACleanup();
 			return 0;
 		}
-		printf("%s\n", buf);
+		printf("\n%s", buf);
 	}
 	return 0;
 }
