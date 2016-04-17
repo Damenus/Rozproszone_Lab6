@@ -64,6 +64,17 @@ DWORD WINAPI klient(void *arg) {
 	char buf[80];
 	char buf_nick[80];
 	char buff_with_nick[160]; 
+
+	//wys³anie dostêpnych osób
+	for (int j = 0; j < i; j++) {
+		if (dane_dla_klienta[j].si != dane->si)	{//inny ni¿ wysy³aj¹cy
+			strcpy(buf_nick, dane_dla_klienta[j].nick);
+			dlug = strlen(buf_nick) + 1;
+			buf_nick[dlug] = '\0';
+			send(dane->si, buf_nick, dlug, 0);  //wys³anie do klientów wiadomoœci
+		}
+	}
+
 	//podnieranie nicku
 	char nick[] = "Podaj nick: \0";
 	dlug = strlen(nick) + 1;
